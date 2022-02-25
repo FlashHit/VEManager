@@ -264,13 +264,14 @@ function VEManagerClient:ApplyTexture(p_ID, p_Guid, p_Path)
 	self:Reload(p_ID)
 end
 
+---@param p_ID string
 ---@param p_RawPreset string
 function VEManagerClient:OnRCONRegister(p_ID, p_RawPreset)
-	if p_ID ~= nil and p_RawPreset ~= nil then
-		self.m_RawPresets[p_ID] = p_RawPreset
-	else 
+	if p_ID == nil or p_RawPreset == nil then
 		m_Logger:Error('Received RCON Preset is invalid')
 	end
+
+	self.m_RawPresets[p_ID] = p_RawPreset
 	self:Reinitialize()
 end
 
@@ -367,7 +368,8 @@ function VEManagerClient:Reinitialize()
 		if l_Preset['entity'] ~= nil then
 			l_Preset['entity']:Destroy()
 		end
-	end 
+	end
+
 	self.m_Presets = {}
 	m_Logger:Write('Destroyed Presets .. Reinitializing now:')
 	self:LoadPresets()

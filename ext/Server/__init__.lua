@@ -20,17 +20,36 @@ function VEManagerServer:RegisterEvents()
 end
 
 function VEManagerServer:RegisterRCON()
-	RCON:RegisterCommand('VEM:RegisterViaRCON', 0, self.OnRCONRegister)
+	RCON:RegisterCommand('VEM:RegisterViaRCON', RemoteCommandFlag.RequiresLogin, self, self.OnRCONRegister)
 end
 
----@param p_RawPreset string
-function VEManagerServer:OnRCONRegister(p_RawPreset)
-	local s_Preset = json.decode(p_RawPreset)
-	m_Logger:Write('RCON Preset Call: ' .. s_Preset.name)
-	if s_Preset.name ~= nil then
-		NetEvents:Broadcast('VEManager:RCONRegister', s_Preset.name, p_RawPreset)
+---@param p_Command string
+---@param p_Args string[]
+---@param p_IsLoggedIn boolean
+---@return string[]
+function VEManagerServer:OnRCONRegister(p_Command, p_Args, p_IsLoggedIn)
+	local s_RawPreset = p_Args[1]
+
+	if s_RawPreset == nil then
+		return { "Invalid argument" }
 	end
+
+	print(s_RawPreset)
+	local s_Preset = json.decode(s_RawPreset)
+
+	if not s_Preset then
+		return { "Invalid preset" }
+	end
+
+	if s_Preset.name == nil then
+		return { "Preset has no name" }
+	end
+
+	m_Logger:Write('RCON Preset Call: ' .. s_Preset.name)
+	NetEvents:Broadcast('VEManager:RCONRegister', s_Preset.name, s_RawPreset)
+
 	s_Preset = nil
+	return { "OK" }
 end
 
 ---@param p_Player Player|nil
